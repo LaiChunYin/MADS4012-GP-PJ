@@ -1,0 +1,39 @@
+<h2 id="orderFormTitle">Order Form</h2>
+
+<form method="post" action="/customers/order" id="orderForm">
+
+    <div>
+        <label for="customerName">Name: </label>
+        <input type="text" name="customerName" placeholder="Please enter your name" />
+    </div>
+
+    <div>
+        <label for="deliveryAddress">Delivery Address: </label>
+        <input type="text" name="deliveryAddress" placeholder="Please enter the delivery address" />
+    </div>
+
+    <hr style="border: 1px dashed black; width: 100%" />
+
+    <table>
+        {{#each menuItems}}
+            {{!-- <div>
+                <input type="checkbox" name="{{this.name}}" value="{{this.price}}"></input>
+                <label for="{{this.name}}">{{this.name}}</label>
+            </div> --}}
+
+            <tr>
+                <td><input type="checkbox" name="{{this.name}}" value="{{this.price}}"></input></td>
+                <td><label for="{{this.name}}">{{this.name}}</label></td>
+                <td><label id="itemPrice" for="{{this.name}}">${{this.price}}</label></td>
+            </tr>
+        {{/each}}
+    </table>
+
+    <button type="submit">Place Order</button>
+
+    {{#if this.errMsg}}
+        <p id="orderFormErrMsg">{{this.errMsg}}</p>
+        {{!-- <p id="orderFormErrMsg">No items is selected</p> --}}
+    {{/if}}
+
+</form>

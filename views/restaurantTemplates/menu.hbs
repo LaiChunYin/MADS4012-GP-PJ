@@ -1,0 +1,16 @@
+<table id="menuItems">
+    {{#each menuItems}}
+        <tr class="menuItem">
+            <td class="menuItemImg">
+                <img src="{{this.image}}"/>
+            </td>
+            <td class="menuItemInfo">
+                <h3 class="itemName">{{this.name}}</h3>
+                <p class="itemDescription">{{this.description}}</p>
+                <p class="price">${{this.price}}</p>
+            </td>
+        </tr>
+    {{/each}}
+</table>
+
+

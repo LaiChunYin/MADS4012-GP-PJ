@@ -1,0 +1,29 @@
+<h2 id="orderStatusFormHeader">Order Status Form</h2>
+
+<form id="orderStatusForm">
+    <div>
+        <label for="orderId">Order ID: </label>
+        <input type="number" name="orderId" placeholder="Please enter your order id"/>
+
+        <button type="submit">Search</button>
+    </div>
+
+    {{#if order}}
+        <table>
+            {{#each order}}
+                <tr>
+                    <td>Order Confirmation Number: {{this.orderConfirmationNumber}}</td>
+                </tr>
+                <tr>
+                    <td>Status: {{this.status}}</td>
+                </tr>
+            {{/each}}
+        </table>
+    {{else}}
+        {{#if errMsg}}
+            <p id="orderStatusFormErrMsg">{{errMsg}}</p>
+        {{/if}}
+    {{/if}}
+
+
+</form>
