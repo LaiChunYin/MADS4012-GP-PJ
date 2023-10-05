@@ -73,15 +73,15 @@ const onHttpStart = () => {
 
 
 // -----------------helper functions---------------------------------------------------------
-const getMenuItems = async (treatEmptyAsError) => {
+const getMenuItems = async () => {
     try {
         console.log("in get menu items")
         const menuItems = await MenuItem.find().lean().exec()
         console.log(menuItems)
 
         // error handling
-        if (treatEmptyAsError && menuItems.length === 0) {
-            return "ERROR: No menu items in the database"
+        if (menuItems.length === 0) {
+            console.log("ERROR: No menu items in the database")
         }
 
         return menuItems
@@ -134,7 +134,7 @@ app.get("/", (req, res) => {
 app.get("/customers/menuItems", async (req, res) => {
     try {
         // const menuItems = await MenuItem.find().lean().exec()
-        const menuItems = await getMenuItems(true)
+        const menuItems = await getMenuItems()
         console.log("in /customers/menuItems ", menuItems)
 
         return res.render("./restaurantTemplates/menu.hbs", {layout: "restaurantLayout", menuItems: menuItems})       
@@ -151,7 +151,7 @@ app.get("/customers/orderForm", async (req, res) => {
         console.log("in /customers/orderForm", errMsg)
 
         // const menuItems = await MenuItem.find().lean().exec()
-        const menuItems = await getMenuItems(true)
+        const menuItems = await getMenuItems()
         console.log("in /customers/orderForm, menuItems ", menuItems)
 
         // return res.send("done")
