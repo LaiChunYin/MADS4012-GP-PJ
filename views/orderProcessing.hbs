@@ -1,0 +1,32 @@
+<main>
+    <h1>Order list</h1>
+    {{#each newArray}}
+    <div>
+        <p>Customer name: {{this.order.customerName}}</p>
+        <p>Address: {{this.order.deliveryAddress}}</p>
+        <div style="width: 30%; border: 1px solid black; margin-bottom: 10px;">
+            {{#each this.order.items}}
+            <p style="color: blue;">{{this.name}}</p>
+            <p>{{this.description}}</p>
+            <p>{{this.price}}</p>
+            {{/each}}
+        </div>
+        <form action="/updateOrder/{{this.order._id}}" method="post">
+            <select name="status">
+                {{#each this.list}}
+                <option value="{{this}}">{{this}}</option>
+                {{/each}}
+
+                {{!-- <option value="{{this.status}}" selected hidden>{{this.status}}</option>
+                <option value="Received">Received</option>
+                <option value="Ready">Ready</option>
+                <option value="Transit">Transit</option>
+                <option value="Delivered">Delivered</option> --}}
+            </select>
+            <p>{{this.order.status}}</p>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+    <hr>
+    {{/each}}
+</main>
