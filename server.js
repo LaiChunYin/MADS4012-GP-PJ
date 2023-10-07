@@ -59,6 +59,12 @@ const orderSchema = new Schema({
   tax: Number,
   grandTotal: Number,
   orderConfirmationNumber: Number,
+
+//   driver: {
+//     username:
+//     licensePlate: String,
+//   },
+//   photoOfDelivery:
 });
 
 const Driver = mongoose.model("driver_collection", driverSchema);
@@ -125,6 +131,23 @@ const generateOrderConfirmatinoNumber = async () => {
         console.log(`Error when generating order confirmation number: ${err}`)
     }
 }
+
+const handleLoad = (status) => {
+    const list = ['Ready', 'Received', 'Transit', 'Delivered']
+  
+    let listT = []
+  
+    listT = [status]
+    for(let i = 0; i < list.length; i++) {
+  
+      if (status !== list[i]) {
+        listT.push(list[i])
+      }
+    }
+  
+    return listT
+  
+  }
 
 /// -----------------Restaurant APIs used by the customers--------------------------------------
 app.get("/", (req, res) => {
@@ -250,17 +273,83 @@ app.get("/customers/orderStatus", async (req, res) => {
 })
 
 /// -----------------Order Processing APIs used by the restaurant--------------------------------------
+app.get("/restaurant/showOrders", async (req, res) => {
+  try {
+    const currentOrdersOnly = req.query.currentOrdersOnly? req.query.currentOrdersOnly : "true"
+    const sortOrder = req.query.sortOrder === "descending"? -1 : 1
+    console.log("sort order and current Orders only are ", sortOrder, currentOrdersOnly)
 
-app.get("/restaurant/check-order-status", (req, res) => {
+    let orders
+    if(currentOrdersOnly === "true"){
+        orders = await Order.find({"status": {$ne : "DELIVERED"}}).sort({"orderTime": sortOrder}).lean().exec()
+    }
+    else{
+        orders = await Order.find().lean().exec()
+    }
+    if(orders.length === 0) {
+        return res.send('No orders in the system')
+    }
 
+    console.log("orders", orders)
+
+    // get orders that are not yet delivered
+    const ordersToBeDisplayed = []
+    for (const data of orders) {
+        const orderInfo = Object.assign(data, {
+            // date:
+            numberOfItems: data.items.length,
+            // driver: {
+            //     name:
+            //     licensePlate
+            // },
+            // photoOfDelivery:
+
+            statuses: Object.values(STATUS),
+        })
+        ordersToBeDisplayed.push(orderInfo)
+    }
+    console.log("order to be displayed ", ordersToBeDisplayed)
+    // console.log(orders)
+
+    res.render("./orderProcessingTemplates/orderProcessing.hbs", {
+      layout: "orderProcessingLayout",
+      ordersToBeDisplayed,
+    //   statuses: Object.values(STATUS),
+    })
+  } catch (error) {
+    console.log(error)
+  }
 })
 
-app.post("/restaurant/place-order", (req, res) => {
 
-})
+app.post("/restaurant/updateOrder/:id", async (req, res) => {
+  const newStatus = req.body.status;
+  try {
 
-app.post("/restaurant/show-receipt", (req, res) => {
+    const orderId = req.params.id
 
+    console.log('newStatus:', newStatus)
+
+    const orderToUpdate = await Order.findOne({ _id: orderId })
+
+    if (orderToUpdate === null) {
+      return res.send('Order not found');
+    }
+
+    const updatedValues = {
+      status: newStatus
+    }
+
+    await orderToUpdate.updateOne(updatedValues)
+    console.log('Done', orderToUpdate)
+
+
+
+    res.redirect('/restaurant/showOrders')
+  } catch (error) {
+    console.log(error);
+    res.send('Error updating order');
+  }
 })
 
 

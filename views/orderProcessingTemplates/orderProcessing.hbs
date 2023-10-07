@@ -1,0 +1,37 @@
+<main>
+    <h1>Order list</h1>
+    {{#each ordersToBeDisplayed}}
+    <div>
+        <p>Customer name: {{this.customerName}}</p>
+        <p>Address: {{this.deliveryAddress}}</p>
+        <p>Date of Order: {{this.orderTime}}</p>
+        <p>Number of Items Ordered: {{this.numberOfItems}}</p>
+        {{#if this.driver}}
+            <p>Driver name: {{this.driver.numberOfItems}}</p>
+            <p>Driver License plage: {{this.driver.licensePlate}}</p>
+        {{/if}}
+        {{#if this.photoOfDelivery}}
+            <p>Photo of Delivery: {{this.photoOfDelivery}}</p>
+        {{/if}}
+
+        <div style="width: 30%; border: 1px solid black; margin-bottom: 10px;">
+            {{#each this.items}}
+                <p style="color: blue;">{{this.name}}</p>
+                <p>{{this.description}}</p>
+                <p>{{this.price}}</p>
+            {{/each}}
+        </div>
+
+        <form action="/restaurant/updateOrder/{{this._id}}" method="post">
+            <select name="status">
+                {{#each this.statuses}}
+                    <option value="{{this}}">{{this}}</option>
+                {{/each}}
+            </select>
+            <p>Current Status: {{this.status}}</p>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+    <hr>
+    {{/each}}
+</main>
