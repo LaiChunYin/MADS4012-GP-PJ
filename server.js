@@ -85,7 +85,7 @@ const handleLoad = (status) => {
   let listT = []
 
   listT = [status]
-  for (var i = 0; i < list.length; i++) {
+  for (let i = 0; i < list.length; i++) {
 
     if (status !== list[i]) {
       listT.push(list[i])
@@ -98,7 +98,7 @@ const handleLoad = (status) => {
 
 app.get("/orders", async (req, res) => {
   try {
-    const orders = await Order.find().lean().exec()
+    const orders = await Order.find().lean().sort({ orderTime: -1 }).exec()
     let newOrders = {}
     let newArray = []
     console.log(orders)
