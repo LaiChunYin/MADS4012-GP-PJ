@@ -160,6 +160,45 @@ app.post("/updateOrder/:id", async (req, res) => {
   }
 })
 
+app.post('/searchByCustomer', async (req, res) => {
+  const nameFromUI = req.body.customerName
+  try {
+    if (nameFromUI.trim().length === 0) {
+      return res.redirect('/orders')
+    }
+    const orders = await Order.find({ customerName: nameFromUI }).lean().exec()
+    let newOrders = {}
+    let newArray = []
+    console.log(orders)
+
+    for (const order of orders) {
+      let list = handleLoad(order.status)
+      newOrders = {
+        list,
+        order
+      }
+      newArray.push(newOrders)
+    }
+    console.log(newArray)
+    // console.log(orders)
+    if (orders.length === 0) {
+      return res.render('errorPage', {
+        layout: 'layout',
+        nameFromUI
+      })
+    }
+
+
+
+    res.render('orderProcessing', {
+      layout: 'layout',
+      newArray
+    })
+  } catch (err) {
+    console.log(err)
+  }
+})
+
 
 /// -----------------Driver Delivery APIs--------------------------------------
 

@@ -1,4 +1,10 @@
 <main>
+    <section>
+        <form action="/searchByCustomer" method="post">
+            <input type="text" placeholder="Customer name" name="customerName">
+            <button type="submit">Search</button>
+        </form>
+    </section>
     <h1>Order list</h1>
     {{#each newArray}}
     <div>
