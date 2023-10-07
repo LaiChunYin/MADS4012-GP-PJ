@@ -8,6 +8,14 @@ const exphbs = require('express-handlebars');
 app.engine('.hbs', exphbs.engine({ extname: '.hbs' }));
 app.set('view engine', '.hbs');
 
+//using sessions
+const session = require('express-session');
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}))  
+
 // server static files
 app.use(express.static("assets"))
 app.use(express.urlencoded({ extended: true }))
@@ -15,9 +23,9 @@ app.use(express.urlencoded({ extended: true }))
 const mongoose = require("mongoose");
 
 // Constants
-const dbName = "MADS4012-Project"
-const password = "3ltAmn86F98usTkk"
-const CONNECTION_STRING = `mongodb+srv://101470580:${password}@cluster0.vawi6nl.mongodb.net/${dbName}?retryWrites=true&w=majority`;
+const dbName = "project"
+const password = "Dayeeta1"
+const CONNECTION_STRING = `mongodb+srv://dbUser:${password}@cluster0.9qiml10.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 const STATUS = {
     RECEIVED: "RECEIVED",
     READY_FOR_DELIVERY: "READY FOR DELIVERY",
@@ -42,6 +50,7 @@ const driverSchema = new Schema({
   vehicleModel: String,
   color: String,
   licensePlate: String,
+  orders: [Number]
 });
 const menuItemSchema = new Schema({
   name: String,
@@ -267,8 +276,88 @@ app.post("/restaurant/show-receipt", (req, res) => {
 
 /// -----------------Driver Delivery APIs used by the drivers--------------------------------------
 
-app.post("/drivers/login", (req, res) => {
+app.get("/drivers/login", (req, res) => {
+    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout"})       
+})
 
+app.post("/drivers/login", async(req,res) =>{
+    if(req.body!==undefined)
+    {
+        console.log("Form fields: "+JSON.stringify(req.body))
+        const username=req.body.username;
+        const password=req.body.password;
+        try
+        {
+            const result = await Driver.findOne({username: username}).lean().exec()
+            if(result!==null)
+            {
+                if(result.password===password)
+                {
+                    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Logged in successfully"})
+                }
+                else
+                    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Incorrect password. Please try again."})
+            }
+            else
+            {
+                return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "User not found. Make sure to register if you haven't already!"})
+            }
+        }
+        catch(err) {
+            console.log(err)
+            return res.send(err);
+        }
+    }
+})
+
+app.get("/drivers/register", (req, res) => {
+    return res.render("./deliveryTemplates/driverRegister", {layout: "deliveryLayout"})       
+})
+
+app.post("/drivers/register", async(req, res) => {
+    if(req.body!==undefined)
+    {
+        console.log("Form fields: "+JSON.stringify(req.body))
+        const fullName=req.body.firstName+" "+req.body.lastName;
+        const username=req.body.username;
+        const password=req.body.password;
+        const vehicleModel=req.body.vehicleModel;
+        const color=req.body.vehicleColor;
+        const licensePlate=req.body.licensePlate;
+        const newDriver = {
+            fullName: fullName,
+            username: username,
+            password: password,
+            vehicleModel: vehicleModel,
+            color: color,
+            licensePlate: licensePlate
+        }
+        try
+        {
+            const result = await Driver.findOne({username: username}).lean().exec()
+            if(result!==null)
+            {
+                return res.render("./deliveryTemplates/driverRegister", {layout: "deliveryLayout", msg: "Username already taken, try another"})
+            }
+            else
+            {
+                const driverToInsert = new Driver(newDriver)
+                try {
+                    await driverToInsert.save()
+                    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Registered successfully. Please login to continue"})       
+
+                }
+                catch (err) {
+                    console.log(err)
+                    return res.send(err);
+                }
+            }
+        }
+        catch(err) {
+            console.log(err)
+            return res.send(err);
+        }
+    }
 })
 
 app.get("/drivers/availableOrders", (req, res) => {

@@ -1,0 +1,16 @@
+<main>
+    {{#if msg}}
+        <p>{{msg}}</p>
+    {{/if}}
+    <h2>Login</h2>
+    <form action="/drivers/login" method="post">
+        <label for="username">Username: </label>
+        <input type="text" name="username" placeholder="Enter username" required>
+        <label for="password">Password: </label>
+        <input type="password" name="password" placeholder="Enter password" required>
+        <button type="submit">Login</button>
+    </form>
+    Not registered as a delivery agent?
+    <br>
+    <a href="/drivers/register">Register Now!</a>
+</main>
