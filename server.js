@@ -132,23 +132,6 @@ const generateOrderConfirmatinoNumber = async () => {
     }
 }
 
-const handleLoad = (status) => {
-    const list = ['Ready', 'Received', 'Transit', 'Delivered']
-  
-    let listT = []
-  
-    listT = [status]
-    for(let i = 0; i < list.length; i++) {
-  
-      if (status !== list[i]) {
-        listT.push(list[i])
-      }
-    }
-  
-    return listT
-  
-  }
-
 /// -----------------Restaurant APIs used by the customers--------------------------------------
 app.get("/", (req, res) => {
     res.redirect("/customers/menuItems");
@@ -295,6 +278,16 @@ app.get("/restaurant/showOrders", async (req, res) => {
     // get orders that are not yet delivered
     const ordersToBeDisplayed = []
     for (const data of orders) {
+        console.log("data is ", data)
+        const currentStatusIndex = Object.values(STATUS).indexOf(data.status)
+        const statuses = Object.values(STATUS)
+        console.log("statuses 1 ", currentStatusIndex, statuses)
+        // move the current status to the first position
+        const currentStatus = statuses[currentStatusIndex]
+        statuses[currentStatusIndex] = statuses[0]
+        statuses[0] = currentStatus
+        console.log("statuses 2 ", statuses)
+
         const orderInfo = Object.assign(data, {
             // date:
             numberOfItems: data.items.length,
@@ -304,7 +297,7 @@ app.get("/restaurant/showOrders", async (req, res) => {
             // },
             // photoOfDelivery:
 
-            statuses: Object.values(STATUS),
+            statuses,
         })
         ordersToBeDisplayed.push(orderInfo)
     }

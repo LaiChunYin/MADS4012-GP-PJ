@@ -1,7 +1,8 @@
-<main>
-    <h1>Order list</h1>
+<h1>Order list</h1>
+
+<div id="orderList">
     {{#each ordersToBeDisplayed}}
-    <div>
+    <div class="order">
         <p>Customer name: {{this.customerName}}</p>
         <p>Address: {{this.deliveryAddress}}</p>
         <p>Date of Order: {{this.orderTime}}</p>
@@ -14,24 +15,30 @@
             <p>Photo of Delivery: {{this.photoOfDelivery}}</p>
         {{/if}}
 
-        <div style="width: 30%; border: 1px solid black; margin-bottom: 10px;">
+        <p id="orderedItemsTitle">Items ordered</p>
+        <div class="orderedItems">
             {{#each this.items}}
                 <p style="color: blue;">{{this.name}}</p>
                 <p>{{this.description}}</p>
-                <p>{{this.price}}</p>
+                <p>${{this.price}}</p>
             {{/each}}
         </div>
 
         <form action="/restaurant/updateOrder/{{this._id}}" method="post">
-            <select name="status">
-                {{#each this.statuses}}
-                    <option value="{{this}}">{{this}}</option>
-                {{/each}}
-            </select>
-            <p>Current Status: {{this.status}}</p>
-            <button type="submit">Update</button>
+            <div class="currentStatus">
+                <p>Current Status: </p>
+                <select name="status">
+                    {{#each this.statuses}}
+                        <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+                <button id="updateButton" type="submit">Update</button>
+            </div>
         </form>
+        {{#if this.message}}
+            <p id="message">{{this.message}}</p>
+        {{/if}}
     </div>
-    <hr>
+    {{!-- <hr> --}}
     {{/each}}
-</main>
+</div>
