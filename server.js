@@ -293,7 +293,12 @@ app.post("/drivers/login", async(req,res) =>{
             {
                 if(result.password===password)
                 {
-                    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Logged in successfully"})
+                    req.session.user = {
+                        username : result.username,
+                        fullname : result.fullName
+                    }
+                    req.session.isLoggedIn = true
+                    return res.redirect("/drivers/dashboard")
                 }
                 else
                     return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Incorrect password. Please try again."})
@@ -345,7 +350,6 @@ app.post("/drivers/register", async(req, res) => {
                 try {
                     await driverToInsert.save()
                     return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Registered successfully. Please login to continue"})       
-
                 }
                 catch (err) {
                     console.log(err)
@@ -358,6 +362,10 @@ app.post("/drivers/register", async(req, res) => {
             return res.send(err);
         }
     }
+})
+
+app.get("/drivers/dashboard", (req, res)=>{
+    res.render("./deliveryTemplates/driverDashboard",{layout: "deliveryLayout", user: req.session.user})
 })
 
 app.get("/drivers/availableOrders", (req, res) => {
