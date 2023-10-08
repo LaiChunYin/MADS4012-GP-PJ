@@ -48,3 +48,11 @@ section {
 
     width: 100%;
 }
+
+#errMsg {
+    color: red;
+    text-align: center;
+
+    font-weight: bold;
+    font-size: 2em;
+}

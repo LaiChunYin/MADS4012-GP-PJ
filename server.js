@@ -260,17 +260,26 @@ app.get("/restaurant/showOrders", async (req, res) => {
   try {
     const currentOrdersOnly = req.query.currentOrdersOnly? req.query.currentOrdersOnly : "true"
     const sortOrder = req.query.sortOrder === "descending"? -1 : 1
-    console.log("sort order and current Orders only are ", sortOrder, currentOrdersOnly)
+    const customerName = typeof(req.query.customerName) === "string" && req.query.customerName !== "" ? req.query.customerName : null
+    console.log("customerName, sort order and current Orders only are ", customerName, sortOrder, currentOrdersOnly)
 
-    let orders
+    let searchCriteria = {}
     if(currentOrdersOnly === "true"){
-        orders = await Order.find({"status": {$ne : "DELIVERED"}}).sort({"orderTime": sortOrder}).lean().exec()
+        // orders = await Order.find({"status": {$ne : "DELIVERED"}}).sort({"orderTime": sortOrder}).lean().exec()
+        searchCriteria["status"] = {$ne : "DELIVERED"}
     }
-    else{
-        orders = await Order.find().lean().exec()
+    if(customerName !== null){
+        searchCriteria["customerName"] = customerName
     }
-    if(orders.length === 0) {
-        return res.send('No orders in the system')
+    const orders = await Order.find(searchCriteria).lean().exec()
+
+    if(orders.length === 0 && customerName !== null) {
+        return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", customerName,})
+    }
+    else if(orders.length === 0) {
+        // return res.send('No orders in the system')
+        const errMsg = 'No orders in the system'
+        return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", errMsg})
     }
 
     console.log("orders", orders)
@@ -344,7 +353,6 @@ app.post("/restaurant/updateOrder/:id", async (req, res) => {
     res.send('Error updating order');
   }
 })
-
 
 
 /// -----------------Driver Delivery APIs used by the drivers--------------------------------------

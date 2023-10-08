@@ -1,44 +1,61 @@
-<h1>Order list</h1>
+<section>
+    <form action="/restaurant/showOrders" >
+        <input type="text" placeholder="Customer name" name="customerName">
+        <button type="submit">Search</button>
+    </form>
+</section>
 
-<div id="orderList">
-    {{#each ordersToBeDisplayed}}
-    <div class="order">
-        <p>Customer name: {{this.customerName}}</p>
-        <p>Address: {{this.deliveryAddress}}</p>
-        <p>Date of Order: {{this.orderTime}}</p>
-        <p>Number of Items Ordered: {{this.numberOfItems}}</p>
-        {{#if this.driver}}
-            <p>Driver name: {{this.driver.numberOfItems}}</p>
-            <p>Driver License plage: {{this.driver.licensePlate}}</p>
-        {{/if}}
-        {{#if this.photoOfDelivery}}
-            <p>Photo of Delivery: {{this.photoOfDelivery}}</p>
-        {{/if}}
+{{#if customerName}}
+    <h2 id="errMsg">No orders with the name of <span style="text-decoration: underline;">{{nameFromUI}}</span></h2>
+    <div style="text-align: center;"><a href="/restaurant/showOrders">Go back</a></div>
+{{else}}
+{{#if errMsg}}
+    <p id="errMsg">{{this.errMsg}}</p>
 
-        <p id="orderedItemsTitle">Items ordered</p>
-        <div class="orderedItems">
-            {{#each this.items}}
-                <p style="color: blue;">{{this.name}}</p>
-                <p>{{this.description}}</p>
-                <p>${{this.price}}</p>
-            {{/each}}
-        </div>
+{{else}}
+    <h1>Order list</h1>
 
-        <form action="/restaurant/updateOrder/{{this._id}}" method="post">
-            <div class="currentStatus">
-                <p>Current Status: </p>
-                <select name="status">
-                    {{#each this.statuses}}
-                        <option value="{{this}}">{{this}}</option>
-                    {{/each}}
-                </select>
-                <button id="updateButton" type="submit">Update</button>
+    <div id="orderList">
+        {{#each ordersToBeDisplayed}}
+        <div class="order">
+            <p>Customer name: {{this.customerName}}</p>
+            <p>Address: {{this.deliveryAddress}}</p>
+            <p>Date of Order: {{this.orderTime}}</p>
+            <p>Number of Items Ordered: {{this.numberOfItems}}</p>
+            {{#if this.driver}}
+                <p>Driver name: {{this.driver.numberOfItems}}</p>
+                <p>Driver License plage: {{this.driver.licensePlate}}</p>
+            {{/if}}
+            {{#if this.photoOfDelivery}}
+                <p>Photo of Delivery: {{this.photoOfDelivery}}</p>
+            {{/if}}
+
+            <p id="orderedItemsTitle">Items ordered</p>
+            <div class="orderedItems">
+                {{#each this.items}}
+                    <p style="color: blue;">{{this.name}}</p>
+                    <p>{{this.description}}</p>
+                    <p>${{this.price}}</p>
+                {{/each}}
             </div>
-        </form>
-        {{#if this.message}}
-            <p id="message">{{this.message}}</p>
-        {{/if}}
+
+            <form action="/restaurant/updateOrder/{{this._id}}" method="post">
+                <div class="currentStatus">
+                    <p>Current Status: </p>
+                    <select name="status">
+                        {{#each this.statuses}}
+                            <option value="{{this}}">{{this}}</option>
+                        {{/each}}
+                    </select>
+                    <button id="updateButton" type="submit">Update</button>
+                </div>
+            </form>
+            {{#if this.message}}
+                <p id="message">{{this.message}}</p>
+            {{/if}}
+        </div>
+        {{!-- <hr> --}}
+        {{/each}}
     </div>
-    {{!-- <hr> --}}
-    {{/each}}
-</div>
+{{/if}}    
+{{/if}}
