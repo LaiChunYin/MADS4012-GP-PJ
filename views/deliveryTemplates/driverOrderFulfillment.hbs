@@ -1,0 +1,25 @@
+<section>
+    <div>
+        <h2>Welcome, {{ user.fullname }}</h2>
+        <a href="/drivers/driverLogout" id="logout">Logout</a>
+    </div>
+    <a href="/drivers/openDeliveries">View Open Deliveries</a>
+    <a href="/drivers/orderFulfillment">Delivery Fulfillment Page</a>
+</section>
+<main>
+    {{#if msg}}
+        <p>{{msg}}</p>
+    {{else}}
+        {{#each orders}}
+            <div class="order">
+                <p>Customer Name: {{this.customerName}}</p>
+                {{#each this.items}}
+                <p>{{this}}</p>
+                {{/each}}
+                <form action="/drivers/orderFulfillment/{{this._id}}" method="post">
+                    <button type="submit">Fulfill Order</button>
+                </form>
+            </div>
+        {{/each}}
+    {{/if}}
+</main>
