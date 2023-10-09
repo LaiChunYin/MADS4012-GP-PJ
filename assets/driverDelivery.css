@@ -1,3 +1,113 @@
-form *{
-    display: block;
+/* login page styling */
+#loginErrMsg {
+    color: red;
+    text-align: center;
+    margin-bottom: 1vh;
+}
+
+#loginForm, #loginForm form, .orderFulfillmentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    
+    text-align: center;
+    /* border: 1px solid black; */
+}
+
+#loginForm button {
+    width: 20%;
+    margin: auto;
+}
+
+/* register page styling */
+#registerMsg {
+    font-weight: bold;
+    text-align: center;
+}
+
+#registerForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+
+    text-align: center;
+    border: 1px solid black;
+
+    margin: 1vh auto;
+    padding: 10px;
+    width: 75vw;
+}
+
+#registerForm button {
+    width: 20%;
+    margin: auto;
+}
+
+#registerFormErrMsg {
+    color: red;
+    text-align: center;
+    margin-bottom: 1vh;
+}
+/* open pages styling */
+#orderMsg {
+    text-align: center;
+    font-size: larger;
+    margin-top: 1vh;
+}
+
+#orderList {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    gap: 1vh;
+    margin-top: 2vh;
+}
+
+#pageTitle {
+    text-align: center;
+}
+
+.order {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid red;
+    background: lightgray;
+    padding: 10px;
+
+    justify-content: space-between;
+    height: 30vh;
+}
+
+.customerInfo {
+    min-height: 30%;
+}
+
+.customerInfo p {
+    font-weight: bold;
+    padding: 5px;
+}
+
+.order button {
+    background-color: white;
+    border-radius: 5px;
+    width: fit-content;
+
+    padding: 5px;
+}
+
+.orderFulfillmentForm button {
+    width: 40%;
+    margin: auto;
+}
+
+.orderDelivered {
+    font-weight: bold;
+    font-size: 1.25em;
+    text-align: center;
+}
+
+.orderDelivered+img {
+    max-width:100%;
+    max-height:40%;
 }

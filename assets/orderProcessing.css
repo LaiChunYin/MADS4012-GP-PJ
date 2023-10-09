@@ -27,6 +27,8 @@ h1 {
     background-color: grey;
     border-radius: 5px;
     padding: 5px;
+
+    width: 35vw;
 }
 
 .order p {
@@ -63,7 +65,12 @@ h1 {
 }
 
 #message {
-    color: red;
+    color: darkgreen;
     font-weight: bold;
     font-size: 1em;
+}
+
+.orderDelivered+img {
+    max-width: 80%;
+    max-height: 40%;
 }

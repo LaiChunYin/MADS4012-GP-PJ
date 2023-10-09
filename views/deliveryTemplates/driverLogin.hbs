@@ -1,16 +1,20 @@
-<main>
-    {{#if msg}}
-        <p>{{msg}}</p>
-    {{/if}}
+{{#if msg}}
+    <p id="loginErrMsg">{{msg}}</p>
+{{/if}}
+<div id="loginForm">
     <h2>Login</h2>
     <form action="/drivers/login" method="post">
-        <label for="username">Username: </label>
-        <input type="text" name="username" placeholder="Enter username" required>
-        <label for="password">Password: </label>
-        <input type="password" name="password" placeholder="Enter password" required>
+        <div>
+            <label for="username">Username: </label>
+            <input type="text" name="username" placeholder="Enter username" required>
+        </div>
+        <div>
+            <label for="password">Password: </label>
+            <input type="password" name="password" placeholder="Enter password" required>
+        </div>
         <button type="submit">Login</button>
     </form>
-    Not registered as a delivery agent?
-    <br>
-    <a href="/drivers/register">Register Now!</a>
-</main>
+<p>Not registered as a delivery agent?</p>
+
+<a href="/drivers/register">Register Now!</a>
+</div>

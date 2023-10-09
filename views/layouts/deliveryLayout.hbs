@@ -20,8 +20,20 @@
     </header>
 
     <main>
+        {{#if hideNavbar}}
+        {{else}}
+            <nav id="navbar">
+                <a href="/drivers/openDeliveries">View Open Deliveries</a>
+                <a href="/drivers/orderFulfillment">Delivery Fulfillment Page</a>
+                <a href="/drivers/driverLogout" id="logout">Logout</a>
+            </nav>
+        {{/if}}
 
         <section>
+            {{#if hideNavbar}}
+            {{else}}
+                <h2>Welcome, {{ user.fullname }}</h2>
+            {{/if}}
             {{{ body }}}
         </section>
     </main>

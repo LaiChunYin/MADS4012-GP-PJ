@@ -1,24 +1,38 @@
-<main>
-    {{#if msg}}
-        <p>{{msg}}</p>
-    {{/if}}
-    <h2>Register as a delivery partner!</h2>
-    <form action="/drivers/register" method="post">
+<h2 id="registerMsg">Register as a delivery partner!</h2>
+
+<form id="registerForm" action="/drivers/register" method="post">
+    <div>
         <label for="firstName">First Name: </label>
         <input type="text" name="firstName" placeholder="Enter first name" required>
+    </div>
+    <div>
         <label for="lastName">Last Name: </label>
         <input type="text" name="lastName" placeholder="Enter last name" required>
+    </div>
+    <div>
         <label for="username">Username: </label>
         <input type="text" name="username" placeholder="Enter username" required>
+    </div>
+    <div>
         <label for="password">Password: </label>
         <input type="password" name="password" placeholder="Enter password" required>
+    </div>
+    <div>
         <label for="vehicleModel">Vehicle Model: </label>
         <input type="text" name="vehicleModel" placeholder="Enter vehicle model" required>
+    </div>
+    <div>
         <label for="vehicleColor">Vehicle Color: </label>
         <input type="text" name="vehicleColor" placeholder="Enter vehicle color" required>
+    </div>
+    <div>
         <label for="licensePlate">License Plate Number: </label>
         <input type="text" name="licensePlate" placeholder="Enter license plate number" required>
+    </div>
 
-        <button type="submit">Register</button>
-    </form>
-</main>
+    <button type="submit">Register</button>
+
+    {{#if msg}}
+        <p id="registerFormErrMsg">{{msg}}</p>
+    {{/if}}
+</form>

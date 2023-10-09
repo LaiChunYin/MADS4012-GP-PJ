@@ -1,25 +1,62 @@
-<section>
-    <div>
-        <h2>Welcome, {{ user.fullname }}</h2>
-        <a href="/drivers/driverLogout" id="logout">Logout</a>
-    </div>
-    <a href="/drivers/openDeliveries">View Open Deliveries</a>
-    <a href="/drivers/orderFulfillment">Delivery Fulfillment Page</a>
-</section>
-<main>
-    {{#if msg}}
-        <p>{{msg}}</p>
+{{!-- {{#if msg}}
+    <p id="openDeliveryMsg">{{msg}}</p>
+{{else}}
+<h3 id="openDeliveriesTitle">Open Orders</h3>
+<div id="openDeliveries">
+    {{#each orders}}
+        <div class="order">
+            <p class="customerInfo">Customer Name: {{this.customerName}}</p>
+            <p class="customerInfo">Address: {{this.deliveryAddress}}</p>
+            <hr>
+            {{#each this.items}}
+                <p>{{this.name}}</p>
+            {{/each}}
+            <form action="/drivers/openDeliveries/{{this._id}}" method="post">
+                <button type="submit">Select This Order For Delivery</button>
+            </form>
+        </div>
+    {{/each}}
+</div>
+{{/if}} --}}
+
+{{#if msg}}
+    <p id="orderMsg">{{msg}}</p>
+{{else}}
+    {{#if inFulfillment}}
+    <h3 id="pageTitle">Order Fufillment Page</h3>
     {{else}}
+    <h3 id="pageTitle">Open Orders</h3>
+    {{/if}}
+
+    <div id="orderList">
         {{#each orders}}
             <div class="order">
-                <p>Customer Name: {{this.customerName}}</p>
+                <div class="customerInfo">
+                    <p>Customer Name: {{this.customerName}}</p>
+                    <p>Address: {{this.deliveryAddress}}</p>
+                    <hr>    
+                </div>
                 {{#each this.items}}
-                <p>{{this}}</p>
+                    <p>{{this.name}}</p>
                 {{/each}}
-                <form action="/drivers/openDeliveries/{{this._id}}" method="post">
-                    <button type="submit">Select This Order For Delivery</button>
-                </form>
+
+                {{#if ../inFulfillment}}
+                    {{#if this.photoOfDelivery}}
+                        <p class="orderDelivered">Order Delivered!</p>
+                        <img src="{{this.photoOfDelivery}}" />
+                    {{else}}
+                        <form class="orderFulfillmentForm" action="/drivers/uploadDeliveryPic/{{this._id}}" method="post", enctype="multipart/form-data">
+                            <label for="deliveryPic">Upload picture of delivered order: </label>
+                            <input type="file" name="deliveryPic" accept="image/png, image/gif, image/jpeg, image/jpg">
+                            <button type="submit">Complete Delivery</button>
+                        </form>
+                    {{/if}}
+                {{else}}
+                    <form action="/drivers/openDeliveries/{{this._id}}" method="post">
+                        <button type="submit">Select This Order For Delivery</button>
+                    </form>
+                {{/if}}
             </div>
         {{/each}}
-    {{/if}}
-</main>
+    </div>
+{{/if}}
