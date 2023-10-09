@@ -8,6 +8,24 @@ const exphbs = require('express-handlebars');
 app.engine('.hbs', exphbs.engine({ extname: '.hbs' }));
 app.set('view engine', '.hbs');
 
+//using multer
+const multer = require('multer')
+const myStorage = multer.diskStorage({
+    destination: "assets/images/",
+    filename: function(req, file, cb){
+        cb(null, `${Date.now()}${path.extname(file.originalname)}`)
+    }
+})
+const upload=multer({storage: myStorage})
+
+//using sessions
+const session = require('express-session');
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true
+}))  
+
 // server static files
 app.use(express.static("assets"))
 app.use(express.urlencoded({ extended: true }))
@@ -42,6 +60,7 @@ const driverSchema = new Schema({
   vehicleModel: String,
   color: String,
   licensePlate: String,
+  orders: [String]
 });
 const menuItemSchema = new Schema({
   name: String,
@@ -357,20 +376,198 @@ app.post("/restaurant/updateOrder/:id", async (req, res) => {
 
 /// -----------------Driver Delivery APIs used by the drivers--------------------------------------
 
-app.post("/drivers/login", (req, res) => {
-
+app.get("/drivers/login", (req, res) => {
+    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout"})       
 })
 
-app.get("/drivers/availableOrders", (req, res) => {
-    
+app.post("/drivers/login", async(req,res) =>{
+    if(req.body!==undefined)
+    {
+        console.log("Form fields: "+JSON.stringify(req.body))
+        const username=req.body.username;
+        const password=req.body.password;
+        try
+        {
+            const result = await Driver.findOne({username: username}).lean().exec()
+            if(result!==null)
+            {
+                if(result.password===password)
+                {
+                    req.session.user = {
+                        username : result.username,
+                        fullname : result.fullName
+                    }
+                    req.session.isLoggedIn = true
+                    return res.redirect("/drivers/dashboard")
+                }
+                else
+                    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Incorrect password. Please try again."})
+            }
+            else
+            {
+                return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "User not found. Make sure to register if you haven't already!"})
+            }
+        }
+        catch(err) {
+            console.log(err)
+            return res.send(err);
+        }
+    }
 })
 
-app.post("/drivers/selectOrder", (req, res) => {
-    
+app.get("/drivers/register", (req, res) => {
+    return res.render("./deliveryTemplates/driverRegister", {layout: "deliveryLayout"})       
 })
 
-app.post("/drivers/delivered", (req, res) => {
-    
+app.post("/drivers/register", async(req, res) => {
+    if(req.body!==undefined)
+    {
+        console.log("Form fields: "+JSON.stringify(req.body))
+        const fullName=req.body.firstName+" "+req.body.lastName;
+        const username=req.body.username;
+        const password=req.body.password;
+        const vehicleModel=req.body.vehicleModel;
+        const color=req.body.vehicleColor;
+        const licensePlate=req.body.licensePlate;
+        const newDriver = {
+            fullName: fullName,
+            username: username,
+            password: password,
+            vehicleModel: vehicleModel,
+            color: color,
+            licensePlate: licensePlate
+        }
+        try
+        {
+            const result = await Driver.findOne({username: username}).lean().exec()
+            if(result!==null)
+            {
+                return res.render("./deliveryTemplates/driverRegister", {layout: "deliveryLayout", msg: "Username already taken, try another"})
+            }
+            else
+            {
+                const driverToInsert = new Driver(newDriver)
+                try {
+                    await driverToInsert.save()
+                    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Registered successfully. Please login to continue"})       
+                }
+                catch (err) {
+                    console.log(err)
+                    return res.send(err);
+                }
+            }
+        }
+        catch(err) {
+            console.log(err)
+            return res.send(err);
+        }
+    }
 })
+
+app.get("/drivers/dashboard", (req, res)=>{
+    if(req.session.isLoggedIn)
+        return res.render("./deliveryTemplates/driverDashboard",{layout: "deliveryLayout", user: req.session.user})
+    else
+        return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Please login to the application first"})
+})
+
+app.get("/drivers/openDeliveries", async(req, res) => {
+    if(req.session.isLoggedIn)
+    {
+        try
+        {
+            const result = await Order.find({status: "READY FOR DELIVERY"}).lean().exec()
+            console.log(result)
+            if(result.length!==0)
+                return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", orders: result, user: req.session.user})
+            else
+                return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", msg: "No orders ready for delivery!", user: req.session.user})
+        }
+        catch(err) {
+            console.log(err)
+            return res.send(err);
+        }
+    }
+    else
+        return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Please login to the application first"})
+})
+
+app.post("/drivers/openDeliveries/:id", async(req, res) => {
+    const id=req.params.id;
+    try
+    {
+        const result1 = await Order.findOne({_id: id})
+        const updateOrder = await result1.updateOne({status: "IN TRANSIT"})
+        const result2 = await Driver.findOne({username: req.session.user.username})
+        const updateDriver = await result2.updateOne({$push: { orders: id }})
+        return res.render("./deliveryTemplates/driverDashboard",{layout: "deliveryLayout", user: req.session.user})
+    }
+    catch(err) {
+        console.log(err)
+        return res.send(err);
+    }
+})
+
+app.get("/drivers/orderFulfillment", async(req, res) => {
+    if(req.session.isLoggedIn)
+    {
+        try
+        {
+            const result1 = await Driver.findOne({username: req.session.user.username}).lean().exec()
+            if(result1.orders.length!==0)
+            {
+                let orderList=[]
+                for(order of result1.orders)
+                {
+                    const result2 = await Order.findOne({_id: order}).lean().exec()
+                    orderList.push(result2)
+                }
+                return res.render("./deliveryTemplates/driverOrderFulfillment",{layout: "deliveryLayout", user: req.session.user, orders: orderList})
+            }
+            else
+            {
+                return res.render("./deliveryTemplates/driverOrderFulfillment",{layout: "deliveryLayout", user: req.session.user, msg: "No orders assigned for delivery!"})
+            }
+        } 
+        catch(err) {
+            console.log(err)
+            return res.send(err);
+        }  
+    }
+    else
+        return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Please login to the application first"})
+})
+
+app.post("/drivers/orderFulfillment/:id", async(req, res) => {
+    const id=req.params.id;
+    return res.render("./deliveryTemplates/driverUploadPic",{layout: "deliveryLayout", user: req.session.user, id: id})
+})
+
+app.get("/drivers/uploadDeliveryPic", (req, res)=> {
+    if(!req.session.isLoggedIn)
+        return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Please login to the application first"})
+})
+
+app.post("/drivers/uploadDeliveryPic/:id", upload.single("deliveryPic"), async(req, res)=> {
+    const id=req.params.id;
+    try
+    {
+        const result1 = await Order.findOne({_id: id})
+        const updateOrder = await result1.updateOne({status: "DELIVERED"})
+        const result2 = await Driver.findOne({username: req.session.user.username})
+        const updateDriver = await result2.updateOne({$pull: { orders: id }})
+        return res.render("./deliveryTemplates/driverDashboard",{layout: "deliveryLayout", user: req.session.user})
+    }
+    catch(err) {
+        console.log(err)
+        return res.send(err);
+    }
+})
+
+app.get("/drivers/driverLogout", (req, res) => {
+    req.session.destroy()
+    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", msg: "Logged out successfully."})
+})
+
 
 app.listen(HTTP_PORT, onHttpStart);
