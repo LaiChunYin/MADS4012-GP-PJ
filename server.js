@@ -13,12 +13,10 @@ const multer = require('multer')
 const myStorage = multer.diskStorage({
     destination: "assets/images/",
     filename: function(req, file, cb){
-        console.log("uploading ", req, `${Date.now()}${path.extname(file.originalname)}`)
         cb(null, `deliveryPic_${Date.now()}${path.extname(file.originalname)}`)
     }
 })
 const upload = multer({storage: myStorage})
-console.log("upload is ", upload, `${__dirname}/assets/images/`)
 //using sessions
 const session = require('express-session');
 app.use(session({
@@ -61,7 +59,6 @@ const driverSchema = new Schema({
   vehicleModel: String,
   color: String,
   licensePlate: String,
-//   orders: [String]
 });
 const menuItemSchema = new Schema({
   name: String,
@@ -100,9 +97,7 @@ const onHttpStart = () => {
 // -----------------helper functions---------------------------------------------------------
 const getMenuItems = async () => {
     try {
-        console.log("in get menu items")
         const menuItems = await MenuItem.find().lean().exec()
-        console.log(menuItems)
 
         // error handling
         if (menuItems.length === 0) {
@@ -119,15 +114,12 @@ const getMenuItems = async () => {
 
 const calculatePrices = async (items) => {
     try {
-        console.log("in calprice ", items)
-
         let subtotal = 0
         for(dish of items){
             subtotal += Number(dish.price)
         }
         const tax = Number((subtotal * 0.13).toFixed(2))
         const grandTotal = Number((subtotal + tax).toFixed(2))
-        console.log("tax, totals ", tax, subtotal, grandTotal)
 
         return {subtotal, tax, grandTotal}
 
@@ -139,9 +131,7 @@ const calculatePrices = async (items) => {
 const generateOrderConfirmatinoNumber = async () => {
     try {
         const result = await Order.findOne().sort({"orderConfirmationNumber": -1}).lean().exec()
-        console.log("gen result ", result)
         const currentMaxConfirmationNumber = result !== null? result.orderConfirmationNumber : 0
-        console.log("current max ", currentMaxConfirmationNumber)
 
         const confimationNumber = currentMaxConfirmationNumber + 1
         return confimationNumber
@@ -167,33 +157,24 @@ app.get("/", (req, res) => {
 
 app.get("/customers/menuItems", async (req, res) => {
     try {
-        // const menuItems = await MenuItem.find().lean().exec()
         const menuItems = await getMenuItems()
-        console.log("in /customers/menuItems ", menuItems)
-
         return res.render("./restaurantTemplates/menu.hbs", {layout: "restaurantLayout", menuItems: menuItems})       
-        
     } catch (err) {
         console.log(`ERROR in GET /customers/menuItems: ${err}`)
-        return res.send("ERROR: Cannot get menu Items")  
+        return res.send(err)  
     }  
 })
 
 app.get("/customers/orderForm", async (req, res) => {
     try {
         const errMsg = req.query.errMsg
-        console.log("in /customers/orderForm", errMsg)
-
-        // const menuItems = await MenuItem.find().lean().exec()
         const menuItems = await getMenuItems()
-        console.log("in /customers/orderForm, menuItems ", menuItems)
 
-        // return res.send("done")
         return res.render("./restaurantTemplates/orderForm.hbs", {layout: "restaurantLayout", errMsg, menuItems: menuItems}) 
         
     } catch (err) {
         console.log(`ERROR in GET /customers/orderForm: ${err}`)
-        return res.send("ERROR: Cannot show order form")    
+        return res.send(err)    
     }  
 })
 
@@ -223,8 +204,6 @@ app.post("/customers/order", async (req, res) => {
             return res.redirect("/customers/orderForm?errMsg=Please enter the delivery Address!")
         }
         else{
-            console.log("items ", itemsToOrder)
-
             const prices = await calculatePrices(itemsToOrder)
             const confirmationNumber = await generateOrderConfirmatinoNumber()
 
@@ -244,14 +223,13 @@ app.post("/customers/order", async (req, res) => {
 
             const orderToBeSaved = new Order(newOrder)
             const savedOrder = await orderToBeSaved.save()
-            console.log("order saved ", savedOrder)
 
             return res.render("./restaurantTemplates/orderReceipt.hbs", {layout: "restaurantLayout", newOrder}) 
         }
         
     } catch (err) {
         console.log(`ERROR in POST /customers/order: ${err}`)
-        return res.send("ERROR: Cannot create new order in the database")
+        return res.send(err)
     }  
 
 })
@@ -263,42 +241,31 @@ app.get("/customers/orderStatus", async (req, res) => {
             return res.render("./restaurantTemplates/orderStatusForm.hbs", {layout: "restaurantLayout"})
         }
 
-        console.log("order id is ", orderId)
-
         const order = await Order.find({orderConfirmationNumber: orderId}).lean().exec()
-        console.log("in order status, ", order)
 
         let errMsg = ""
         if(typeof(orderId) === "number" && order.length === 0) {
-            console.log("no order found")
             errMsg = "No order is found"
         }
 
-        console.log("err message ", errMsg)
         res.render("./restaurantTemplates/orderStatusForm.hbs", {layout: "restaurantLayout", order, errMsg}) 
     }
     catch(err){
         console.log(`ERROR in GET /customers/orderStatus: ${err}`)
-        return res.send("ERROR: Cannot get order status")
+        return res.send(err)
     }
 })
 
 /// -----------------Order Processing APIs used by the restaurant--------------------------------------
 app.get("/restaurant/showOrders", async (req, res) => {
   try {
-    console.log("show order req query ", req.query, req.body, req.params)
     const currentOrdersOnly = req.query.currentOrdersOnly === "false"? false : true
     const sortOrder = req.query.sortOrder === "ascending"? 1 : -1
     const customerName = typeof(req.query.customerName) === "string" && req.query.customerName !== "" ? req.query.customerName : null
     const updatedItem = typeof(req.query.updatedItem) === "string" && req.query.updatedItem !== "" ? req.query.updatedItem : null
-    console.log("updatedItem is ", typeof(updatedItem), updatedItem)
-    console.log("customer name is ", typeof(customerName), customerName)
-    console.log("sort order is ", typeof(sortOrder), sortOrder)
-    console.log("current order only is ", typeof(currentOrdersOnly), currentOrdersOnly)
 
     let searchCriteria = {}
     if(currentOrdersOnly === true){
-        // orders = await Order.find({"status": {$ne : "DELIVERED"}}).sort({"orderTime": sortOrder}).lean().exec()
         searchCriteria["status"] = {$ne : "DELIVERED"}
     }
     if(customerName !== null){
@@ -310,25 +277,19 @@ app.get("/restaurant/showOrders", async (req, res) => {
         return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", customerName, currentOrdersOnly})
     }
     else if(orders.length === 0) {
-        // return res.send('No orders in the system')
         const errMsg = 'No orders in the system'
         return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", errMsg, currentOrdersOnly})
     }
 
-    console.log("orders", orders)
-
     // get orders that are not yet delivered
     const ordersToBeDisplayed = []
     for (const data of orders) {currentOrdersOnly
-        console.log("data is ", data)
         const currentStatusIndex = Object.values(STATUS).indexOf(data.status)
         const statuses = Object.values(STATUS)
-        console.log("statuses 1 ", currentStatusIndex, statuses)
         // move the current status to the first position
         const currentStatus = statuses[currentStatusIndex]
         statuses[currentStatusIndex] = statuses[0]
         statuses[0] = currentStatus
-        console.log("statuses 2 ", statuses, data._id.toString())
 
         const orderInfo = Object.assign(data, {
             numberOfItems: data.items.length,
@@ -337,8 +298,6 @@ app.get("/restaurant/showOrders", async (req, res) => {
         })
         ordersToBeDisplayed.push(orderInfo)
     }
-    console.log("order to be displayed ", ordersToBeDisplayed)
-    // console.log(orders)
 
     res.render("./orderProcessingTemplates/orderProcessing.hbs", {
       layout: "orderProcessingLayout",
@@ -346,7 +305,8 @@ app.get("/restaurant/showOrders", async (req, res) => {
       currentOrdersOnly,
     })
   } catch (error) {
-    console.log(error)
+    console.log(`ERROR in GET /restaurant/showOrders: ${err}`)
+    res.send(error)
   }
 })
 
@@ -356,9 +316,6 @@ app.post("/restaurant/updateOrder/:id", async (req, res) => {
   try {
 
     const orderId = req.params.id
-
-    console.log('newStatus:', newStatus, orderId)
-
     const orderToUpdate = await Order.findOne({ _id: orderId })
 
     if (orderToUpdate === null) {
@@ -370,14 +327,11 @@ app.post("/restaurant/updateOrder/:id", async (req, res) => {
     }
 
     await orderToUpdate.updateOne(updatedValues)
-    console.log('Done', orderToUpdate)
-
-
 
     res.redirect(`/restaurant/showOrders?updatedItem=${orderId}`)
   } catch (error) {
-    console.log(error);
-    res.send('Error updating order');
+    console.log(`ERROR in POST /restaurant/updateOrder/:id: ${error}`);
+    res.send(error);
   }
 })
 
@@ -391,7 +345,6 @@ app.get("/drivers/login", (req, res) => {
 app.post("/drivers/login", async(req,res) =>{
     if(req.body!==undefined)
     {
-        console.log("Form fields: "+JSON.stringify(req.body))
         const username=req.body.username;
         const password=req.body.password;
         try
@@ -417,7 +370,7 @@ app.post("/drivers/login", async(req,res) =>{
             }
         }
         catch(err) {
-            console.log(err)
+            console.log(`ERROR in POST /drivers/login: ${err}`)
             return res.send(err);
         }
     }
@@ -430,7 +383,6 @@ app.get("/drivers/register", (req, res) => {
 app.post("/drivers/register", async(req, res) => {
     if(req.body!==undefined)
     {
-        console.log("Form fields: "+JSON.stringify(req.body))
         const fullName=req.body.firstName+" "+req.body.lastName;
         const username=req.body.username;
         const password=req.body.password;
@@ -460,34 +412,28 @@ app.post("/drivers/register", async(req, res) => {
                     return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", hideNavbar: true, msg: "Registered successfully. Please login to continue"})       
                 }
                 catch (err) {
-                    console.log(err)
                     return res.send(err);
                 }
             }
         }
         catch(err) {
-            console.log(err)
+            console.log(`ERROR in POST /drivers/register: ${err}`)
             return res.send(err);
         }
     }
 })
 
-// app.get("/drivers/dashboard", authenticateDriver, (req, res)=>{
-//     return res.render("./deliveryTemplates/driverDashboard",{layout: "deliveryLayout", user: req.session.user})
-// })
-
 app.get("/drivers/openDeliveries", authenticateDriver, async(req, res) => {
     try
     {
         const ordersToBeDelivered = await Order.find({status: STATUS.READY_FOR_DELIVERY}).lean().exec()
-        console.log("ordersToBeDelivered is ", ordersToBeDelivered)
         if(ordersToBeDelivered.length!==0)
             return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", orders: ordersToBeDelivered, user: req.session.user})
         else
             return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", msg: "No orders ready for delivery!", user: req.session.user})
     }
     catch(err) {
-        console.log(err)
+        console.log(`ERROR in GET /drivers/openDeliveries: ${err}`)
         return res.send(err);
     }
 })
@@ -496,51 +442,30 @@ app.post("/drivers/openDeliveries/:id", authenticateDriver, async(req, res) => {
     const id=req.params.id;
     try
     {
-        // const result1 = await Order.findOne({_id: id})
-        // const updateOrder = await result1.updateOne({status: "IN TRANSIT"})
-        // const result2 = await Driver.findOne({username: req.session.user.username})
-        // const updateDriver = await result2.updateOne({$push: { orders: id }})
         const orderToTransit = await Order.findOne({_id: id})
         const currentDriver = await Driver.findOne({username: req.session.user.username})
         const updateOrder = await orderToTransit.updateOne({status: "IN TRANSIT", driver: {username: currentDriver.username, licensePlate: currentDriver.licensePlate}})
-        console.log("update order is ", updateOrder)
-        // const updateDriver = await currentDriver.updateOne({$push: { orders: id }})
-        // return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", user: req.session.user})
         res.redirect("/drivers/openDeliveries")
     }
     catch(err) {
-        console.log(err)
+        console.log(`ERROR in POST /drivers/openDeliveries/:id: ${err}`)
         return res.send(err);
     }
 })
 
 app.get("/drivers/orderFulfillment", authenticateDriver, async(req, res) => {
     try {
-        // const currentDriver = await Driver.findOne({username: req.session.user.username}).lean().exec()
-        // if(currentDriver.orders.length!==0)
-        // {
-        //     let orderList=[]
-        //     for(order of currentDriver.orders)
-        //     {
-        //         const result2 = await Order.findOne({_id: order}).lean().exec()
-        //         orderList.push(result2)
-        //     }
-        //     return res.render("./deliveryTemplates/driverOrderFulfillment",{layout: "deliveryLayout", user: req.session.user, orders: orderList})
-        // }
         const fulfilledOrders = await Order.find({"driver.username": req.session.user.username}).lean().exec();
-        console.log("fulfilled orders ", fulfilledOrders)
         if(fulfilledOrders.length !== 0){
-            // return res.render("./deliveryTemplates/driverOrderFulfillment",{layout: "deliveryLayout", user: req.session.user, orders: fulfilledOrders})
             return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", inFulfillment: true, user: req.session.user, orders: fulfilledOrders, msg1: "delete this"})
         }
         else
         {
-            // return res.render("./deliveryTemplates/driverOrderFulfillment",{layout: "deliveryLayout", user: req.session.user, msg: "No orders assigned for delivery!"})
             return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", inFulfillment: true, user: req.session.user, msg: "No orders assigned for delivery!"})
         }
     } 
     catch(err) {
-        console.log(err)
+        console.log(`ERROR in GET /drivers/orderFulfillment: ${err}`)
         return res.send(err);
     }  
 })
@@ -550,17 +475,11 @@ app.post("/drivers/uploadDeliveryPic/:id", authenticateDriver, upload.single("de
     try
     {
         const orderDelivered = await Order.findOne({_id: id})
-        // const updateOrder = await orderDelivered.updateOne({status: STATUS.DELIVERED})
-        const updateOrder = await orderDelivered.updateOne({status: STATUS.DELIVERED, photoOfDelivery: `/images/${req.file.filename}`})
-        // const result2 = await Driver.findOne({username: req.session.user.username})
-        // const updateDriver = await result2.updateOne({$pull: { orders: id }})
-        console.log("before testings ", req)
-        // res.render("./deliveryTemplates/driverOpenDeliveries", {layout: "deliveryLayout", user: req.session.user})
-        // res.render("./deliveryTemplates/driverOrderFulfillment", {layout: "deliveryLayout", user: req.session.user})
+        await orderDelivered.updateOne({status: STATUS.DELIVERED, photoOfDelivery: `/images/${req.file.filename}`})
         res.redirect("/drivers/orderFulfillment")
     }
     catch(err) {
-        console.log(err)
+        console.log(`ERROR in POST /drivers/uploadDeliveryPic/:id: ${err}`)
         return res.send(err);
     }
 })

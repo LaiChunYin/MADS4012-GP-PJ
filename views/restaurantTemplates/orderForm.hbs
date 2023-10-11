@@ -16,11 +16,6 @@
 
     <table>
         {{#each menuItems}}
-            {{!-- <div>
-                <input type="checkbox" name="{{this.name}}" value="{{this.price}}"></input>
-                <label for="{{this.name}}">{{this.name}}</label>
-            </div> --}}
-
             <tr>
                 <td><input type="checkbox" name="{{this.name}}" value="{{this.price}}"></input></td>
                 <td><label for="{{this.name}}">{{this.name}}</label></td>
@@ -33,7 +28,6 @@
 
     {{#if this.errMsg}}
         <p id="orderFormErrMsg">{{this.errMsg}}</p>
-        {{!-- <p id="orderFormErrMsg">No items is selected</p> --}}
     {{/if}}
 
 </form>

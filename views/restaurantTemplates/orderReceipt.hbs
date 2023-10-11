@@ -1,49 +1,41 @@
 <div id="receipt">
-<h2 id="orderReceivedMsg">{{this.newOrder.customerName}}, your order is received</h2>
+    <h2 id="orderReceivedMsg">{{this.newOrder.customerName}}, your order is received</h2>
 
-        {{!-- <td>Order Confirmation Number: {{this.newOrder.orderConfirmationNumber}}</td> --}}
+    <div>
+        <p>Order Confirmation Number: {{this.newOrder.orderConfirmationNumber}}</p>
+        <p>Deliver to: {{this.newOrder.deliveryAddress}}</p>
+    </div>
 
-
-        <div>
-            <p>Order Confirmation Number: {{this.newOrder.orderConfirmationNumber}}</p>
-            <p>Deliver to: {{this.newOrder.deliveryAddress}}</p>
-        </div>
-
-<table id="pricesBreakdown">
-    <tr id="pricesBreakdownHeaderRow">
-        <th></th>
-        <th>Items ordered</th>
-        <th>Prices</th>
-        {{!-- <td>Order Confirmation Number: {{this.newOrder.orderConfirmationNumber}}</td>
-        <td>Deliver to: {{this.newOrder.devliveryAddress}}</td> --}}
-
-    </tr>
-    {{#each newOrder.items}}
-        <tr class="itemOrdered">
-            <td></td>
-            <td class="secondColData">{{this.name}}</td>
-            <td class="thirdColData">{{this.price}}</td>
+    <table id="pricesBreakdown">
+        <tr id="pricesBreakdownHeaderRow">
+            <th></th>
+            <th>Items ordered</th>
+            <th>Prices</th>
         </tr>
-    {{/each}}
+        {{#each newOrder.items}}
+            <tr class="itemOrdered">
+                <td></td>
+                <td class="secondColData">{{this.name}}</td>
+                <td class="thirdColData">{{this.price}}</td>
+            </tr>
+        {{/each}}
 
-    {{!-- <hr style="border: 1px solid black; width: 100%" /> --}}
-
-    <tr id="subtotal">
-        <td>Subtotal</td>
-        <td class="secondColData"></td>
-        <td class="thirdColData">{{this.newOrder.subtotal}}</td>
-    </tr>
-    <tr>
-        <td>Tax</td>
-        <td class="secondColData"></td>
-        <td class="thirdColData">{{this.newOrder.tax}}</td>
-    </tr>
-    <tr id="grandTotal">
-        <td>Grand Total</td>
-        <td class="secondColData"></td>
-        <td class="thirdColData">{{this.newOrder.grandTotal}}</td>
-    </tr>
-</table>
+        <tr id="subtotal">
+            <td>Subtotal</td>
+            <td class="secondColData"></td>
+            <td class="thirdColData">{{this.newOrder.subtotal}}</td>
+        </tr>
+        <tr>
+            <td>Tax</td>
+            <td class="secondColData"></td>
+            <td class="thirdColData">{{this.newOrder.tax}}</td>
+        </tr>
+        <tr id="grandTotal">
+            <td>Grand Total</td>
+            <td class="secondColData"></td>
+            <td class="thirdColData">{{this.newOrder.grandTotal}}</td>
+        </tr>
+    </table>
 <div>
 
 
