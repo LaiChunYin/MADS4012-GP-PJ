@@ -286,11 +286,15 @@ app.get("/customers/orderStatus", async (req, res) => {
 /// -----------------Order Processing APIs used by the restaurant--------------------------------------
 app.get("/restaurant/showOrders", async (req, res) => {
   try {
+    console.log("show order req query ", req.query, req.body, req.params)
     const currentOrdersOnly = req.query.currentOrdersOnly === "false"? false : true
     const sortOrder = req.query.sortOrder === "ascending"? 1 : -1
     const customerName = typeof(req.query.customerName) === "string" && req.query.customerName !== "" ? req.query.customerName : null
-    const updatedItem = typeof(req.query.updatedItem) === "string" && req.query.customerName !== "" ? req.query.updatedItem : null
-    console.log("updatedItem, customerName, sort order and current Orders only are ", updatedItem, customerName, sortOrder, currentOrdersOnly)
+    const updatedItem = typeof(req.query.updatedItem) === "string" && req.query.updatedItem !== "" ? req.query.updatedItem : null
+    console.log("updatedItem is ", typeof(updatedItem), updatedItem)
+    console.log("customer name is ", typeof(customerName), customerName)
+    console.log("sort order is ", typeof(sortOrder), sortOrder)
+    console.log("current order only is ", typeof(currentOrdersOnly), currentOrdersOnly)
 
     let searchCriteria = {}
     if(currentOrdersOnly === true){
@@ -303,19 +307,19 @@ app.get("/restaurant/showOrders", async (req, res) => {
     const orders = await Order.find(searchCriteria).sort({"orderTime": sortOrder}).lean().exec()
 
     if(orders.length === 0 && customerName !== null) {
-        return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", customerName,})
+        return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", customerName, currentOrdersOnly})
     }
     else if(orders.length === 0) {
         // return res.send('No orders in the system')
         const errMsg = 'No orders in the system'
-        return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", errMsg})
+        return res.render("./orderProcessingTemplates/orderProcessing.hbs", { layout: "orderProcessingLayout", errMsg, currentOrdersOnly})
     }
 
     console.log("orders", orders)
 
     // get orders that are not yet delivered
     const ordersToBeDisplayed = []
-    for (const data of orders) {
+    for (const data of orders) {currentOrdersOnly
         console.log("data is ", data)
         const currentStatusIndex = Object.values(STATUS).indexOf(data.status)
         const statuses = Object.values(STATUS)
@@ -327,14 +331,7 @@ app.get("/restaurant/showOrders", async (req, res) => {
         console.log("statuses 2 ", statuses, data._id.toString())
 
         const orderInfo = Object.assign(data, {
-            // date:
             numberOfItems: data.items.length,
-            // driver: {
-            //     name:
-            //     licensePlate
-            // },
-            // photoOfDelivery:
-
             statuses,
             isUpdatedMsg: data._id.toString() === updatedItem? "Order Status Updated Successfully" : false,
         })
@@ -347,7 +344,6 @@ app.get("/restaurant/showOrders", async (req, res) => {
       layout: "orderProcessingLayout",
       ordersToBeDisplayed,
       currentOrdersOnly,
-    //   statuses: Object.values(STATUS),
     })
   } catch (error) {
     console.log(error)

@@ -28,7 +28,7 @@ h1 {
     border-radius: 5px;
     padding: 5px;
 
-    width: 35vw;
+    min-width: 35vw;
 }
 
 .order p {
@@ -50,6 +50,7 @@ h1 {
 .currentStatus {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .currentStatus select {
@@ -70,7 +71,13 @@ h1 {
     font-size: 1em;
 }
 
+.orderDelivered {
+    font-weight: bold;
+    font-size: 1.25em;
+    text-align: center;
+}
+
 .orderDelivered+img {
-    max-width: 80%;
+    max-width: 100%;
     max-height: 40%;
 }

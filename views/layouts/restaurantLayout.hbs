@@ -3,27 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{!-- <base href="http://localhost:8080/"> --}}
     <link rel="stylesheet" href="/common.css" />
     <link rel="stylesheet" href="/restaurant.css" >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Fasthand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    {{!-- icon library --}}
+    <script src="https://kit.fontawesome.com/49fa9b69e4.js" crossorigin="anonymous"></script>
     <title>PROJECT_G05</title>
 </head>
 <body>
     
 <body>
     <header>
-        <h1>George Brown Restaurant</h1>
-        <div id="timeAndLocation">
-            <p>175 Kendal Avenue Toronto ON M5R 1M3</p>    
-            <p>Monday - Thursday: 8:00 a.m. – 4:30 p.m.</p>
+        {{!-- <img src="https://thumbs.dreamstime.com/b/pizza-flag-10418334.jpg"> --}}
+        <div id="restaurantInfo">
+            <h1>George Brown Restaurant</h1>
+            <div id="timeAndLocation">
+                <p>175 Kendal Avenue Toronto ON M5R 1M3</p>    
+                <p>Monday - Thursday: 8:00 a.m. – 4:30 p.m.</p>
+            </div>
         </div>
     </header>
 
     <main>
         <nav id="navbar">
-            <a href="/customers/menuItems">Menu</a>
-            <a href="/customers/orderForm">Order Form</a>
-            <a href="/customers/orderStatus">Order Status Form</a>
+            <div class="linkWithIcon"><i class="fa-solid fa-bars"></i><a href="/customers/menuItems">Menu</a></div>
+            <div class="linkWithIcon"><i class="fa-solid fa-pencil"></i><a href="/customers/orderForm">Order Form</a></div>
+            <div class="linkWithIcon"><i class="fa-solid fa-magnifying-glass"></i><a href="/customers/orderStatus">Order Status Form</a></div>
         </nav>
 
         <section>

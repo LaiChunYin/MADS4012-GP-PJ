@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{!-- <base href="http://localhost:8080/"> --}}
     <link rel="stylesheet" href="/common.css" />
     <link rel="stylesheet" href="/orderProcessing.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Fasthand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    {{!-- icon library --}}
+    <script src="https://kit.fontawesome.com/49fa9b69e4.js" crossorigin="anonymous"></script>
     <title>PROJECT_G05</title>
 </head>
 <body>
     
 <body>
     <header>
-        <h1>George Brown Restaurant</h1>
-        <div id="timeAndLocation">
-            <p>175 Kendal Avenue Toronto ON M5R 1M3</p>    
-            <p>Monday - Thursday: 8:00 a.m. – 4:30 p.m.</p>
+        <div id="restaurantInfo">
+            <h1>George Brown Restaurant</h1>
+            <div id="timeAndLocation">
+                <p>175 Kendal Avenue Toronto ON M5R 1M3</p>    
+                <p>Monday - Thursday: 8:00 a.m. – 4:30 p.m.</p>
+            </div>
         </div>
     </header>
 
     <main>
         <nav id="navbar">
-            <a href="/restaurant/showOrders?currentOrdersOnly=true">Current Orders</a>
-            <a href="/restaurant/showOrders?currentOrdersOnly=false">History of Orders</a>
+            <div class="linkWithIcon"><i class="fa-solid fa-book-open"></i><a href="/restaurant/showOrders?currentOrdersOnly=true">Current Orders</a></div>
+            <div class="linkWithIcon"><i class="fa-solid fa-book"></i><a href="/restaurant/showOrders?currentOrdersOnly=false">History of Orders</a></div>
         </nav>
 
         <section>

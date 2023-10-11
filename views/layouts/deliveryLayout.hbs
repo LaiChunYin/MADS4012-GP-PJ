@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{!-- <base href="http://localhost:8080/"> --}}
     <link rel="stylesheet" href="/common.css" />
     <link rel="stylesheet" href="/driverDelivery.css" >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Fasthand&family=Permanent+Marker&display=swap" rel="stylesheet">
+    {{!-- icon library --}}
+    <script src="https://kit.fontawesome.com/49fa9b69e4.js" crossorigin="anonymous"></script>
     <title>PROJECT_G05</title>
 </head>
 <body>
     
 <body>
     <header>
-        <h1>George Brown Restaurant Delivery Portal</h1>
-        <div id="timeAndLocation">
-            <p>175 Kendal Avenue Toronto ON M5R 1M3</p>    
-            <p>Monday - Thursday: 8:00 a.m. – 4:30 p.m.</p>
+        <div id="restaurantInfo">
+            <h1>George Brown Restaurant Delivery Portal</h1>
+            <div id="timeAndLocation">
+                <p>175 Kendal Avenue Toronto ON M5R 1M3</p>    
+                <p>Monday - Thursday: 8:00 a.m. – 4:30 p.m.</p>
+            </div>
         </div>
     </header>
 
@@ -23,9 +29,9 @@
         {{#if hideNavbar}}
         {{else}}
             <nav id="navbar">
-                <a href="/drivers/openDeliveries">View Open Deliveries</a>
-                <a href="/drivers/orderFulfillment">Delivery Fulfillment Page</a>
-                <a href="/drivers/driverLogout" id="logout">Logout</a>
+                <div class="linkWithIcon"><i class="fa-regular fa-eye"></i><a href="/drivers/openDeliveries">View Open Deliveries</a></div>
+                <div class="linkWithIcon"><i class="fa-solid fa-motorcycle"></i><a href="/drivers/orderFulfillment">Delivery Fulfillment Page</a></div>
+                <div class="linkWithIcon"><i class="fa-solid fa-right-from-bracket"></i><a href="/drivers/driverLogout" id="logout">Logout</a></div>
             </nav>
         {{/if}}
 
