@@ -60,8 +60,10 @@
             </div>
 
             {{#if this.photoOfDelivery}}
+            <div class="photoOfDelivery">
                 <p class="orderDelivered">Order Delivered!</p>
                 <img src="{{this.photoOfDelivery}}" />
+            </div>
             {{/if}}
             <form action="/restaurant/updateOrder/{{this._id}}" method="post">
                 <div class="currentStatus">

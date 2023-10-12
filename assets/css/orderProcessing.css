@@ -24,11 +24,13 @@ h1 {
 }
 
 .order {
+    display: flex;
+    flex-direction: column;
     background-color: grey;
     border-radius: 5px;
-    padding: 5px;
+    padding: 10px;
 
-    min-width: 35vw;
+    width: 25vw;
 }
 
 .order p {
@@ -78,6 +80,8 @@ h1 {
 }
 
 .orderDelivered+img {
+    display: block;
+    margin: auto;
     max-width: 100%;
-    max-height: 40%;
+    max-height: 100%;
 }

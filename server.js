@@ -477,7 +477,7 @@ app.post("/drivers/openDeliveries/:id", authenticateDriver, async(req, res) => {
 
 app.get("/drivers/orderFulfillment", authenticateDriver, async(req, res) => {
     try {
-        const fulfilledOrders = await Order.find({"driver.username": req.session.user.username}).lean().exec();
+        const fulfilledOrders = await Order.find({$or: [{status: STATUS.IN_TRANSIT}, {status: STATUS.DELIVERED}], "driver.username": req.session.user.username}).lean().exec();
         if(fulfilledOrders.length !== 0){
             return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", inFulfillment: true, user: req.session.user, orders: fulfilledOrders})
         }
@@ -507,8 +507,13 @@ app.post("/drivers/uploadDeliveryPic/:id", authenticateDriver, upload.single("de
 })
 
 app.get("/drivers/driverLogout", (req, res) => {
-    req.session.destroy()
-    return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", hideNavbar: true, msg: "Logged out successfully."})
+    if(req.session.isLoggedIn !== undefined && req.session.isLoggedIn){
+        req.session.destroy()
+        return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", hideNavbar: true, msg: "Logged out successfully."})
+    }
+    else{
+        return res.render("./deliveryTemplates/driverLogin", {layout: "deliveryLayout", hideNavbar: true, msg: "No users logged in"})
+    }
 })
 
 // default endpoints
