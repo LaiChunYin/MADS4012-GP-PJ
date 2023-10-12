@@ -44,6 +44,7 @@
             <p>Address: {{this.deliveryAddress}}</p>
             <p>Date of Order: {{this.orderTime}}</p>
             <p>Number of Items Ordered: {{this.numberOfItems}}</p>
+            <p>Order total: ${{this.orderTotal}}</p>
             {{#if this.driver}}
                 <p>Driver name: {{this.driver.fullName}}</p>
                 <p>Driver License plate: {{this.driver.licensePlate}}</p>
@@ -61,19 +62,23 @@
             {{#if this.photoOfDelivery}}
                 <p class="orderDelivered">Order Delivered!</p>
                 <img src="{{this.photoOfDelivery}}" />
-            {{else}}
-                <form action="/restaurant/updateOrder/{{this._id}}" method="post">
-                    <div class="currentStatus">
-                        <p>Current Status: </p>
-                        <select name="status">
-                            {{#each this.statuses}}
-                                <option value="{{this}}">{{this}}</option>
-                            {{/each}}
-                        </select>
-                        <button id="updateButton" type="submit">Update</button>
-                    </div>
-                </form>
             {{/if}}
+            <form action="/restaurant/updateOrder/{{this._id}}" method="post">
+                <div class="currentStatus">
+                    <p>Current Status: </p>
+                    <select name="status">
+                        {{#each this.statuses}}
+                            <option value="{{this}}">{{this}}</option>
+                        {{/each}}
+                    </select>
+                    {{#if ../currentOrdersOnly}}
+                    {{else}}
+                        <input type="hidden" name="currentOrdersOnly" value="false" />
+                    {{/if}}
+                    <button id="updateButton" type="submit">Update</button>
+                </div>
+            </form>
+
             {{#if this.isUpdatedMsg}}
                 <p id="message">{{this.isUpdatedMsg}}</p>
             {{/if}}

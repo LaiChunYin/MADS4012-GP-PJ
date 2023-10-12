@@ -78,6 +78,7 @@ const orderSchema = new Schema({
   orderConfirmationNumber: Number,
   driver: {
     username: String,
+    fullName: String,
     licensePlate: String,
   },
   photoOfDelivery: String,
@@ -222,7 +223,7 @@ app.post("/customers/order", async (req, res) => {
             }
 
             const orderToBeSaved = new Order(newOrder)
-            const savedOrder = await orderToBeSaved.save()
+            await orderToBeSaved.save()
 
             return res.render("./restaurantTemplates/orderReceipt.hbs", {layout: "restaurantLayout", newOrder}) 
         }
@@ -264,7 +265,7 @@ app.get("/restaurant/showOrders", async (req, res) => {
     const customerName = typeof(req.query.customerName) === "string" && req.query.customerName !== "" ? req.query.customerName : null
     const updatedItem = typeof(req.query.updatedItem) === "string" && req.query.updatedItem !== "" ? req.query.updatedItem : null
 
-    let searchCriteria = {}
+    const searchCriteria = {}
     if(currentOrdersOnly === true){
         searchCriteria["status"] = {$ne : "DELIVERED"}
     }
@@ -283,18 +284,25 @@ app.get("/restaurant/showOrders", async (req, res) => {
 
     // get orders that are not yet delivered
     const ordersToBeDisplayed = []
-    for (const data of orders) {currentOrdersOnly
+    for (const data of orders) {
         const currentStatusIndex = Object.values(STATUS).indexOf(data.status)
         const statuses = Object.values(STATUS)
         // move the current status to the first position
         const currentStatus = statuses[currentStatusIndex]
         statuses[currentStatusIndex] = statuses[0]
         statuses[0] = currentStatus
+        
+        let orderTotal = 0
+        for(let item of data.items){
+            orderTotal += item.price
+        }
+        orderTotal *= 1.13  // tax
 
         const orderInfo = Object.assign(data, {
             numberOfItems: data.items.length,
             statuses,
             isUpdatedMsg: data._id.toString() === updatedItem? "Order Status Updated Successfully" : false,
+            orderTotal,
         })
         ordersToBeDisplayed.push(orderInfo)
     }
@@ -312,23 +320,27 @@ app.get("/restaurant/showOrders", async (req, res) => {
 
 
 app.post("/restaurant/updateOrder/:id", async (req, res) => {
-  const newStatus = req.body.status;
-  try {
+    try {
+        const newStatus = req.body.status;
+        const currentOrdersOnly = req.body.currentOrdersOnly === "false"? false : true; 
+        const orderId = req.params.id
+        const orderToUpdate = await Order.findOne({ _id: orderId })
+        if (orderToUpdate === null) {
+        return res.send('Order not found');
+        }
 
-    const orderId = req.params.id
-    const orderToUpdate = await Order.findOne({ _id: orderId })
+        const updatedValues = {
+        status: newStatus
+        }
 
-    if (orderToUpdate === null) {
-      return res.send('Order not found');
-    }
+        await orderToUpdate.updateOne(updatedValues)
 
-    const updatedValues = {
-      status: newStatus
-    }
-
-    await orderToUpdate.updateOne(updatedValues)
-
-    res.redirect(`/restaurant/showOrders?updatedItem=${orderId}`)
+        if(currentOrdersOnly === false){
+            res.redirect(`/restaurant/showOrders?updatedItem=${orderId}&currentOrdersOnly=false`)
+        }
+        else{
+            res.redirect(`/restaurant/showOrders?updatedItem=${orderId}`)
+        }
   } catch (error) {
     console.log(`ERROR in POST /restaurant/updateOrder/:id: ${error}`);
     res.send(error);
@@ -444,7 +456,7 @@ app.post("/drivers/openDeliveries/:id", authenticateDriver, async(req, res) => {
     {
         const orderToTransit = await Order.findOne({_id: id})
         const currentDriver = await Driver.findOne({username: req.session.user.username})
-        const updateOrder = await orderToTransit.updateOne({status: "IN TRANSIT", driver: {username: currentDriver.username, licensePlate: currentDriver.licensePlate}})
+        await orderToTransit.updateOne({status: "IN TRANSIT", driver: {username: currentDriver.username, fullName: currentDriver.fullName, licensePlate: currentDriver.licensePlate}})
         res.redirect("/drivers/openDeliveries")
     }
     catch(err) {
@@ -457,7 +469,7 @@ app.get("/drivers/orderFulfillment", authenticateDriver, async(req, res) => {
     try {
         const fulfilledOrders = await Order.find({"driver.username": req.session.user.username}).lean().exec();
         if(fulfilledOrders.length !== 0){
-            return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", inFulfillment: true, user: req.session.user, orders: fulfilledOrders, msg1: "delete this"})
+            return res.render("./deliveryTemplates/driverOpenDeliveries",{layout: "deliveryLayout", inFulfillment: true, user: req.session.user, orders: fulfilledOrders})
         }
         else
         {

@@ -26,7 +26,7 @@
                     {{else}}
                         <form class="orderFulfillmentForm" action="/drivers/uploadDeliveryPic/{{this._id}}" method="post", enctype="multipart/form-data">
                             <label for="deliveryPic">Upload picture of delivered order: </label>
-                            <input type="file" name="deliveryPic" accept="image/png, image/gif, image/jpeg, image/jpg">
+                            <input type="file" name="deliveryPic" accept="image/png, image/gif, image/jpeg, image/jpg" required>
                             <button type="submit">Complete Delivery</button>
                         </form>
                     {{/if}}
