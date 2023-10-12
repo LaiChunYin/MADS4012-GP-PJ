@@ -65,6 +65,7 @@ const menuItemSchema = new Schema({
   image: String,
   description: String,
   price: Number,
+  isFeaturedItem: Boolean,
 });
 const orderSchema = new Schema({
   customerName: String,
@@ -159,7 +160,15 @@ app.get("/", (req, res) => {
 app.get("/customers/menuItems", async (req, res) => {
     try {
         const menuItems = await getMenuItems()
-        return res.render("./restaurantTemplates/menu.hbs", {layout: "restaurantLayout", menuItems: menuItems})       
+        const featuredItems = []
+
+        for(let i=0; i < menuItems.length; i++){
+            if(menuItems[i].isFeaturedItem === true){
+                featuredItems.push(menuItems.splice(i, 1)[0])
+            }
+        }
+
+        return res.render("./restaurantTemplates/menu.hbs", {layout: "restaurantLayout", menuItems: menuItems, featuredItems})       
     } catch (err) {
         console.log(`ERROR in GET /customers/menuItems: ${err}`)
         return res.send(err)  
@@ -297,6 +306,7 @@ app.get("/restaurant/showOrders", async (req, res) => {
             orderTotal += item.price
         }
         orderTotal *= 1.13  // tax
+        orderTotal = orderTotal.toFixed(2)
 
         const orderInfo = Object.assign(data, {
             numberOfItems: data.items.length,

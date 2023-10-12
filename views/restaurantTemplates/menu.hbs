@@ -1,4 +1,32 @@
 <table id="menuItems">
+    {{#each featuredItems}}
+        <tr class="featuredItem">
+            <td class="featuredItemImg">
+                <img src="{{this.image}}"/>
+            </td>
+            <td class="featuredItemInfo">
+                    <p class="featuredItemTitle">Featured Item</p>
+                <div>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <h3 class="featureItemName">{{this.name}}</h3>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                </div>
+
+                <p class="featuredItemDescription">{{this.description}}</p>
+                <p class="featuredItemPrice">${{this.price}}</p>
+
+            </td>
+        </tr>
+    {{/each}}
+
     {{#each menuItems}}
         <tr class="menuItem">
             <td class="menuItemImg">
